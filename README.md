@@ -80,11 +80,9 @@ func _on_stop_button_pressed() -> void:
 ---
 
 ## 🧪 Technical References
-This plugin relies on the following engine improvements:
+This plugin relies on the following engine improvement:
 
-Godot PR #113288 - Added low-level audio input buffer access.
-Godot PR #105244 - Refactor of audio processing.
-Godot PR #114094 - Fixes to input sample management.
+Godot PR [#113288](https://github.com/godotengine/godot/pull/113288) - Added low-level audio input buffer access.
 
 ---
 
