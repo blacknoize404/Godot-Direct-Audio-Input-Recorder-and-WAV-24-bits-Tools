@@ -28,9 +28,9 @@ With the release of **Godot 4.6**, developers gained low-level access to the raw
 
 ## 🛠 Installation
 
-1.  Clone or copy the contents of this repository into your project's `res://addons/wav_24bit_tools/` directory.
+1.  Clone or copy the contents of this repository into your project's `res://addons/direct_audio_and_wav_24bits/` directory.
 2.  Go to **Project > Project Settings > Plugins**.
-3.  Locate **WAV 24-Bit High-Fidelity Tools** and check the **Enabled** box.
+3.  Locate **High-Fidelity Audio Recording and WAV 24-Bit Tools** and check the **Enabled** box.
 4.  Ensure your project has **Audio Input** enabled in the Project Settings (under Audio).
 
 ---
@@ -57,21 +57,18 @@ An optimized player inheriting from `AudioStreamPlayer`.
 
 ## 💻 Usage Example
 
-Salida de código
-README.md generated successfully.
-
 ```gdscript
 extends Node
 
 @onready var recorder = $DirectAudioInputRecorder
 @onready var player = $AudioStreamPlayerWav24B
 
-func _on_record_button_pressed():
+func _on_record_button_pressed() -> void:
     recorder.start_capturing()
 
-func _on_stop_button_pressed():
+func _on_stop_button_pressed() -> void:
     recorder.stop_capturing()
-    var recording = recorder.get_recording_as_wav24b()
+    var recording : AudioStreamWAV24B  = recorder.get_recording_as_wav24b()
     
     # Save it to the user folder
     recording.save_to_wav("user://high_fidelity_capture.wav")
