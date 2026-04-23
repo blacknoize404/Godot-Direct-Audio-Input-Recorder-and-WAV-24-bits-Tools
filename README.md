@@ -9,7 +9,7 @@ A professional-grade audio suite designed to bypass engine-level audio input lim
 Historically, audio input in Godot has been plagued by synchronization issues, leading to "robotic voice," "garbled audio," and significant input lag. These issues were deeply rooted in how the engine's high-level capture buses interacted with system drivers.
 
 This module was specifically built to address the problems documented in the following GitHub issues:
-* [Issue #76797](https://github.com/godotengine/godot/issues/112836): Audio input drift over time.
+* [Issue #76797](https://github.com/godotengine/godot/issues/76797): Audio input drift over time.
 * [Issue #80173](https://github.com/godotengine/godot/issues/80173): Jitter and desync in audio capture.
 * [Issue #112836](https://github.com/godotengine/godot/issues/112836): Persistent robotic/garbled input on certain hardware.
 
