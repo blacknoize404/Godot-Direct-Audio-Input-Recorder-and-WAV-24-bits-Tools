@@ -55,7 +55,7 @@ An optimized player inheriting from `AudioStreamPlayer`.
 * **Streaming Architecture**: It does not decode the entire file at once. Instead, it "streams" chunks to an `AudioStreamGeneratorPlayback` object.
 * **Low Memory Footprint**: Even for multi-minute recordings, only a few kilobytes are decoded per frame update.
 
----s
+---
 
 ## 💻 Usage Example
 
