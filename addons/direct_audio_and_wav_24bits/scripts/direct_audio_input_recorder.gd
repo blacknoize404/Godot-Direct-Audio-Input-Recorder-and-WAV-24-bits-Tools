@@ -1,10 +1,16 @@
 @tool
-@icon("icons/direct_audio_input_recorder.svg")
+@icon("res://addons/direct_audio_and_wav_24bits/icons/direct_audio_input_recorder.svg")
 class_name DirectAudioInputRecorder
 extends Node
 
-## A node that captures microphone input and converts it into standard WAV audio formats.
-## It supports 8-bit, 16-bit, and external 24-bit formatting, as well as real-time volume monitoring.
+## A high-performance audio capture node designed for Godot 4.6+.
+##
+## This node specifically addresses long-standing engine issues regarding 
+## input desynchronization, lag, and audio garbling (see GitHub issues #80173, #76797).
+## By utilizing direct low-level access to the audio input buffer (PR #113288),
+## it provides a stable alternative to the standard capture bus system.
+## It supports 8-bit, 16-bit, and external 24-bit formatting for WAV audio formats, 
+## as well as real-time volume monitoring.
 
 # --- Internal Variables ---
 var _is_recording: bool = false
@@ -15,12 +21,12 @@ var _last_audio_samples: PackedVector2Array = PackedVector2Array()
 # --- Exported Properties ---
 
 ## The audio depth format. 0 is 8-Bits, 1 is 16-Bits.
-@export_enum("8 Bits", "16 bits") var format: int = 1:
+@export_enum("8 Bits", "16 Bits", "24 Bits") var format: int = 1:
 	set(value):
-		if value >= 0 and value <= 1:
+		if value in [0, 1, 2]:
 			format = value
 		else:
-			push_error("Format value must be 0 (8-bit) or 1 (16-bit).")
+			push_error("Format value must be 0 (8-bit), 1 (16-bit) o 2 (24-bit).")
 
 ## The sample rate of the recording (e.g., 44100 Hz).
 @export var mix_rate: float = 44100.0
@@ -63,7 +69,7 @@ func is_recording() -> bool:
 
 ## Returns an array of the native formats supported by Godot's AudioStreamWAV.
 func available_formats() -> Array[String]:
-	return ["8 Bits", "16 Bits"]
+	return ["8 Bits", "16 Bits", "24 Bits"]
 	
 ## Starts capturing microphone input and clears any previous recordings.
 func start_capturing() -> void:
@@ -142,10 +148,12 @@ func get_recording() -> AudioStreamWAV:
 	
 	# Process the bytes based on the selected format
 	var byte_array: PackedByteArray
-	if format == 1:
+	if format == 0:
+		byte_array = _format_to_8_bits(_recording_buffer)
+	elif format == 1:
 		byte_array = _format_to_16_bits(_recording_buffer)
 	else:
-		byte_array = _format_to_8_bits(_recording_buffer)
+		push_error("Use get_recording_as_wav24b method to export as 24 bits")
 	
 	wav_audio.data = byte_array
 	_last_recording = wav_audio

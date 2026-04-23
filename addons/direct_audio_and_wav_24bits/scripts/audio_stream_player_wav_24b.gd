@@ -1,45 +1,114 @@
+@tool
 class_name AudioStreamPlayerWav24B
 extends AudioStreamPlayer
 
-# El recurso que creamos antes para guardar los datos
+## A specialized player for 24-bit WAV audio resources.
+## It uses an AudioStreamGenerator to stream and decode 24-bit data in real-time
+## chunks, ensuring high performance and low memory usage.
+
+# --- Properties ---
+
+## The 24-bit resource to be played.
 var stream_resource: AudioStreamWAV24B
+
+# --- Internal State ---
 var _playback: AudioStreamGeneratorPlayback
-var _is_stepping: bool = false
+var _current_frame_index: int = 0
+var _is_initialized: bool = false
+
+# --- Built-in Node Methods ---
 
 func _ready() -> void:
-	# Usamos un generador como puente para poder enviar los datos convertidos
-	var generator = AudioStreamGenerator.new()
-	generator.mix_rate = 44100 # O el que prefieras
-	generator.buffer_length = 0.1 # Buffer pequeño para baja latencia
-	
-	self.stream = generator
-
-# Función principal para cargar y empezar a tocar
-func play_24bit(res: AudioStreamWAV24B):
-	stream_resource = res
-	
-	# Aseguramos que el mix_rate del generador coincida con el recurso
-	self.stream.mix_rate = res.mix_rate
-	
-	self.play()
-	_playback = self.get_stream_playback()
-	_fill_buffer()
+	_setup_generator()
 
 func _process(_delta: float) -> void:
-	if _playback and self.playing:
+	if _playback and playing:
 		_fill_buffer()
 
-# El "corazón" que traduce los bytes de 24 bits a Floats en tiempo real
-func _fill_buffer():
-	var frames_to_fill = _playback.get_skips() + _playback.get_frames_available()
-	if frames_to_fill <= 0:
+# --- Public Interface ---
+
+## Loads a 24-bit resource and begins playback from the start.
+func play_24bit(res: AudioStreamWAV24B) -> void:
+	if res == null or res.data.is_empty():
+		push_error("AudioStreamPlayerWav24B: Cannot play an empty or null resource.")
 		return
 		
-	# Obtenemos los frames ya convertidos del recurso
-	# Nota: En una versión Pro, convertiríamos esto por trozos (chunks)
-	# para no saturar la memoria si el audio es muy largo.
-	var all_frames = stream_resource.get_as_frames()
+	stream_resource = res
+	_current_frame_index = 0
 	
-	# Aquí podrías implementar un cursor para saber por dónde va la canción
-	# Por simplicidad, aquí enviamos los frames disponibles
-	_playback.push_buffer(all_frames)
+	# Ensure the generator's mix rate matches the resource
+	if stream.mix_rate != res.mix_rate:
+		stream.mix_rate = res.mix_rate
+	
+	self.play()
+	_playback = get_stream_playback()
+	
+	# Initial buffer fill to prevent immediate underrun
+	_fill_buffer()
+
+## Resets the playback cursor to the beginning.
+func seek_start() -> void:
+	_current_frame_index = 0
+
+# --- Internal Methods ---
+
+## Initializes the AudioStreamGenerator which acts as a bridge for the raw data.
+func _setup_generator() -> void:
+	var generator = AudioStreamGenerator.new()
+	generator.mix_rate = 44100 # Default, will be updated on play
+	generator.buffer_length = 0.1 # 100ms buffer for low latency
+	
+	self.stream = generator
+	_is_initialized = true
+
+## The streaming engine. Decodes and pushes only the required chunks of audio.
+func _fill_buffer() -> void:
+	if not _playback or not stream_resource:
+		return
+
+	# Determine how much space is available in the generator's buffer
+	var frames_available = _playback.get_frames_available()
+	if frames_available <= 0:
+		return
+
+	# Calculate how many frames are left in the actual audio data
+	var total_resource_frames = stream_resource.data.size() / (6 if stream_resource.stereo else 3)
+	var frames_to_process = min(frames_available, total_resource_frames - _current_frame_index)
+
+	if frames_to_process <= 0:
+		if _current_frame_index >= total_resource_frames:
+			# End of file reached
+			stop()
+		return
+
+	# Create a temporary buffer for the chunk
+	var chunk = PackedVector2Array()
+	chunk.resize(frames_to_process)
+	
+	var data_bytes = stream_resource.data
+	var is_stereo = stream_resource.stereo
+	var bytes_per_frame = 6 if is_stereo else 3
+
+	# --- REAL-TIME DECODING LOOP ---
+	# We decode only the frames needed for this specific buffer update
+	for i in range(frames_to_process):
+		var byte_idx = (_current_frame_index + i) * bytes_per_frame
+		
+		# Decode Left/Mono (3 bytes -> Signed 64-bit Int -> Float)
+		var l_int = data_bytes[byte_idx] | (data_bytes[byte_idx+1] << 8) | (data_bytes[byte_idx+2] << 16)
+		l_int = (l_int << 40) >> 40 # Sign extension
+		var left_float = float(l_int) / 0x7FFFFF
+		
+		var right_float = left_float
+		if is_stereo:
+			# Decode Right
+			var r_idx = byte_idx + 3
+			var r_int = data_bytes[r_idx] | (data_bytes[r_idx+1] << 8) | (data_bytes[r_idx+2] << 16)
+			r_int = (r_int << 40) >> 40
+			right_float = float(r_int) / 0x7FFFFF
+			
+		chunk[i] = Vector2(left_float, right_float)
+
+	# Push the decoded chunk to the AudioServer
+	_playback.push_buffer(chunk)
+	_current_frame_index += frames_to_process

@@ -11,12 +11,22 @@ config_version=5
 [application]
 
 config/name="Direct Audio Input Plugin"
+run/main_scene="uid://g7ru42ovfg71"
 config/features=PackedStringArray("4.6", "GL Compatibility")
+run/low_processor_mode=true
 config/icon="res://icon.svg"
+
+[audio]
+
+driver/enable_input=true
 
 [dotnet]
 
 project/assembly_name="Direct Audio Input Plugin"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/direct_audio_and_wav_24bits/plugin.cfg")
 
 [physics]
 
@@ -27,3 +37,4 @@ project/assembly_name="Direct Audio Input Plugin"
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
