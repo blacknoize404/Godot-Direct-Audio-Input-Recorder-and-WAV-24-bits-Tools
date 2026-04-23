@@ -1,5 +1,7 @@
 # High-Fidelity Audio Recording and WAV 24-Bit Tools for Godot 4.6+
 
+![Banner](assets/banner.webp)
+
 A professional-grade audio suite designed to bypass engine-level audio input limitations and provide true 24-bit PCM support within Godot.
 
 ## 🚀 Solving the "Garbled Mic" Problem
