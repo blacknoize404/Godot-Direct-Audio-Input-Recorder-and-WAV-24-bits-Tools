@@ -7,9 +7,9 @@ A professional-grade audio suite designed to bypass engine-level audio input lim
 Historically, audio input in Godot has been plagued by synchronization issues, leading to "robotic voice," "garbled audio," and significant input lag. These issues were deeply rooted in how the engine's high-level capture buses interacted with system drivers.
 
 This module was specifically built to address the problems documented in the following GitHub issues:
-* **Issue #80173**: Jitter and desync in audio capture.
-* **Issue #112836**: Persistent robotic/garbled input on certain hardware.
-* **Issue #76797**: Audio input drift over time.
+* [Issue #76797](https://github.com/godotengine/godot/issues/112836): Audio input drift over time.
+* [Issue #80173](https://github.com/godotengine/godot/issues/80173): Jitter and desync in audio capture.
+* [Issue #112836](https://github.com/godotengine/godot/issues/112836): Persistent robotic/garbled input on certain hardware.
 
 ### The Solution: Low-Level Buffer Access
 With the release of **Godot 4.6**, developers gained low-level access to the raw input device buffer ([PR #113288](https://github.com/godotengine/godot/pull/113288)). This plugin leverages that new capability to bypass the unstable high-level layers, capturing data directly from the hardware buffer for maximum stability and fidelity.
