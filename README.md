@@ -70,7 +70,7 @@ func _on_record_button_pressed() -> void:
 
 func _on_stop_button_pressed() -> void:
     recorder.stop_capturing()
-    var recording : AudioStreamWAV24B  = recorder.get_recording_as_wav24b()
+    var recording : AudioStreamWAV24B = recorder.get_recording_as_wav24b()
     
     # Save it to the user folder
     recording.save_to_wav("user://high_fidelity_capture.wav")
