@@ -15,6 +15,7 @@ var stream_resource: AudioStreamWAV24B
 var _playback: AudioStreamGeneratorPlayback
 var _current_frame_index: int = 0
 var _is_initialized: bool = false
+var _was_pushed_completely: bool = false
 
 # --- Built-in Node Methods ---
 
@@ -35,6 +36,7 @@ func play_24bit(res: AudioStreamWAV24B) -> void:
 		
 	stream_resource = res
 	_current_frame_index = 0
+	_was_pushed_completely = false # Resetear estado
 	
 	# Ensure the generator's mix rate matches the resource
 	if stream.mix_rate != res.mix_rate:
@@ -49,12 +51,14 @@ func play_24bit(res: AudioStreamWAV24B) -> void:
 ## Resets the playback cursor to the beginning.
 func seek_start() -> void:
 	_current_frame_index = 0
+	_was_pushed_completely = false
 
 # --- Internal Methods ---
 
 ## Initializes the AudioStreamGenerator which acts as a bridge for the raw data.
 func _setup_generator() -> void:
 	var generator = AudioStreamGenerator.new()
+	
 	generator.mix_rate = 44100 # Default, will be updated on play
 	generator.buffer_length = 0.1 # 100ms buffer for low latency
 	
@@ -73,6 +77,21 @@ func _fill_buffer() -> void:
 
 	# Calculate how many frames are left in the actual audio data
 	var total_resource_frames = stream_resource.data.size() / (6 if stream_resource.stereo else 3)
+
+	# 1. ¿Ya enviamos todo al buffer?
+	if _current_frame_index >= total_resource_frames:
+		_was_pushed_completely = true
+		
+		# 2. Esperar a que el buffer del AudioServer se vacíe
+		# Si los frames disponibles son iguales al tamaño total del buffer, es que ya no hay nada sonando
+		var buffer_capacity = stream.buffer_length * stream.mix_rate
+		if frames_available >= buffer_capacity - 1: # -1 por margen de error de redondeo
+			_finalize_playback()
+		return
+		
+	if frames_available <= 0:
+		return
+	
 	var frames_to_process = min(frames_available, total_resource_frames - _current_frame_index)
 
 	if frames_to_process <= 0:
@@ -80,7 +99,8 @@ func _fill_buffer() -> void:
 			# End of file reached
 			stop()
 		return
-
+		
+	# --- DECODING LOOP ---
 	# Create a temporary buffer for the chunk
 	var chunk = PackedVector2Array()
 	chunk.resize(frames_to_process)
@@ -112,3 +132,9 @@ func _fill_buffer() -> void:
 	# Push the decoded chunk to the AudioServer
 	_playback.push_buffer(chunk)
 	_current_frame_index += frames_to_process
+	
+func _finalize_playback() -> void:
+	stop()
+	_current_frame_index = 0
+	_was_pushed_completely = false
+	finished.emit()
