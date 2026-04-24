@@ -20,6 +20,14 @@ config/icon="res://icon.svg"
 
 driver/enable_input=true
 
+[display]
+
+window/size/viewport_width=500
+window/size/viewport_height=650
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+
 [dotnet]
 
 project/assembly_name="Direct Audio Input Plugin"

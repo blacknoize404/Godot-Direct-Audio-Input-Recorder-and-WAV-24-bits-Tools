@@ -59,7 +59,7 @@ func _load_devices():
 	for device in AudioServer.get_input_device_list():
 		input_devices_option.add_item(device)
 		if AudioServer.input_device == device:
-			input_devices_option.select(output_devices_option.item_count - 1)
+			input_devices_option.select(input_devices_option.item_count - 1)
 			
 	output_devices_option.clear()
 	for device in AudioServer.get_output_device_list():
