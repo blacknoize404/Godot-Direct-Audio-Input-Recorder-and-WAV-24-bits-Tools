@@ -4,6 +4,9 @@
 [ext_resource type="Script" uid="uid://dkex2g6fut6kl" path="res://addons/direct_audio_and_wav_24bits/scripts/direct_audio_input_recorder.gd" id="2_nhffr"]
 [ext_resource type="Script" uid="uid://bqo5emomonmoe" path="res://addons/direct_audio_and_wav_24bits/scripts/audio_stream_player_wav_24b.gd" id="2_y6by5"]
 
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_nhffr"]
+buffer_length = 0.1
+
 [node name="DirectAudioInputRecorderTest" type="Control" unique_id=2008739099]
 layout_mode = 3
 anchors_preset = 15
@@ -14,6 +17,7 @@ grow_vertical = 2
 script = ExtResource("1_tir0v")
 
 [node name="AudioStreamPlayerWav24B" type="AudioStreamPlayer" parent="." unique_id=1857188637]
+stream = SubResource("AudioStreamGenerator_nhffr")
 script = ExtResource("2_y6by5")
 metadata/_custom_type_script = "uid://bqo5emomonmoe"
 
@@ -179,8 +183,10 @@ text = "Input:"
 
 [node name="InputDevicesOption" type="OptionButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/HBoxContainer" unique_id=385757452]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+text_overrun_behavior = 4
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3" unique_id=1647116863]
 layout_mode = 2
@@ -192,8 +198,10 @@ text = "Output:"
 
 [node name="OutputDevicesOption" type="OptionButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/HBoxContainer2" unique_id=1256804944]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+text_overrun_behavior = 4
 
 [connection signal="finished" from="AudioStreamPlayerWav24B" to="." method="_on_player_24bit_finished"]
 [connection signal="on_recording_end" from="DirectAudioInputRecorder" to="." method="_on_recorder_on_recording_end"]

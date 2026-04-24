@@ -176,7 +176,6 @@ func _generate_uuid() -> String:
 		hex.substr(20, 12)
 	]
 
-
 func _on_input_devices_option_item_selected(index: int) -> void:
 	var s = input_devices_option.get_item_text(index)
 	AudioServer.input_device = s
@@ -185,4 +184,3 @@ func _on_input_devices_option_item_selected(index: int) -> void:
 func _on_output_devices_option_item_selected(index: int) -> void:
 	var e = output_devices_option.get_item_text(index)
 	AudioServer.output_device = e
-	
