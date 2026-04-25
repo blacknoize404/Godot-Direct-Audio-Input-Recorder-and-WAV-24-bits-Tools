@@ -18,6 +18,7 @@ var _recording_buffer: PackedVector2Array = PackedVector2Array()
 var _last_recording: AudioStreamWAV
 var _last_audio_samples: PackedVector2Array = PackedVector2Array()
 var _last_peak_volume_db : Vector2 = Vector2(-80, -80)
+var _last_rms_volume_db : int = 0
 
 # --- Exported Properties ---
 
@@ -197,7 +198,7 @@ func convert_to_mono(original_stream: AudioStreamWAV) -> AudioStreamWAV:
 ## Calculates the linear volume (0.0 to 1.0) using Root Mean Square (RMS).
 func _get_input_volume_rms(frames: PackedVector2Array) -> float:
 	if frames.is_empty():
-		return 0.0
+		return _last_rms_volume_db
 		
 	var sum_of_squares: float = 0.0
 	
@@ -211,7 +212,9 @@ func _get_input_volume_rms(frames: PackedVector2Array) -> float:
 	var mean_square: float = sum_of_squares / (frames.size() * 2)
 	
 	# Return the square root of the mean
-	return sqrt(mean_square)
+	_last_rms_volume_db = sqrt(mean_square)
+	
+	return _last_rms_volume_db
 
 ## Returns the current average input volume in linear scale (0.0 to 1.0).
 func get_input_volume_lineal() -> float:
