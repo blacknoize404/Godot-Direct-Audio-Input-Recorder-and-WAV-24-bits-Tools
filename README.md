@@ -4,7 +4,7 @@
 
 A professional-grade audio suite designed to bypass engine-level audio input limitations and provide true 24-bit PCM support within Godot.
 
-## 🚀 Solving the "Garbled Mic" Problem
+## Solving the "Garbled Mic" Problem
 
 Historically, audio input in Godot has been plagued by synchronization issues, leading to "robotic voice," "garbled audio," and significant input lag. These issues were deeply rooted in how the engine's high-level capture buses interacted with system drivers.
 
@@ -16,9 +16,7 @@ This module was specifically built to address the problems documented in the fol
 ### The Solution: Low-Level Buffer Access
 With the release of **Godot 4.6**, developers gained low-level access to the raw input device buffer ([PR #113288](https://github.com/godotengine/godot/pull/113288)). This plugin leverages that new capability to bypass the unstable high-level layers, capturing data directly from the hardware buffer for maximum stability and fidelity.
 
----
-
-## ✨ Key Features
+## Key Features
 
 * **Direct Audio Input Recorder**: A custom node that captures microphone data without the jitter of standard buses.
 * **24-Bit PCM Support**: Full support for 24-bit audio resources, providing 144dB of dynamic range (standard `AudioStreamWAV` is limited to 16-bit).
@@ -26,18 +24,14 @@ With the release of **Godot 4.6**, developers gained low-level access to the raw
 * **Real-time Monitoring**: Built-in RMS and Peak volume calculation in Decibels (dB).
 * **Pro WAV Exporting**: Saves audio to disk with a standard-compliant RIFF 24-bit header, compatible with Audacity, DAW, and professional audio software.
 
----
-
-## 🛠 Installation
+## Installation
 
 1.  Clone or copy the contents of this repository into your project's `res://addons/direct_audio_and_wav_24bits/` directory.
 2.  Go to **Project > Project Settings > Plugins**.
 3.  Locate **High-Fidelity Audio Recording and WAV 24-Bit Tools** and check the **Enabled** box.
 4.  Ensure your project has **Audio Input** enabled in the Project Settings (under Audio).
 
----
-
-## 🏗 Component Breakdown
+## Component Breakdown
 
 ### 1. DirectAudioInputRecorder (Node)
 The "Heart" of the system. It monitors the `AudioServer` input frames and stores them in a floating-point buffer.
@@ -55,9 +49,7 @@ An optimized player inheriting from `AudioStreamPlayer`.
 * **Streaming Architecture**: It does not decode the entire file at once. Instead, it "streams" chunks to an `AudioStreamGeneratorPlayback` object.
 * **Low Memory Footprint**: Even for multi-minute recordings, only a few kilobytes are decoded per frame update.
 
----
-
-## 💻 Usage Example
+## Usage Example
 
 ```gdscript
 extends Node
@@ -79,14 +71,10 @@ func _on_stop_button_pressed() -> void:
     player.play_24bit(recording)
 ```
 
----
-
-## 🧪 Technical References
+## Technical References
 This plugin relies on the following engine improvement:
 
 Godot PR [#113288](https://github.com/godotengine/godot/pull/113288) - Added low-level audio input buffer access.
 
----
-
-## 📜 License
+## License
 This tool is provided under the MIT License. Use it to make your Godot games and apps sound incredible.
