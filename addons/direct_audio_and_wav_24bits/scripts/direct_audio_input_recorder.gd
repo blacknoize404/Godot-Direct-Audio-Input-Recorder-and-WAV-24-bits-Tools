@@ -17,6 +17,7 @@ var _is_recording: bool = false
 var _recording_buffer: PackedVector2Array = PackedVector2Array()
 var _last_recording: AudioStreamWAV
 var _last_audio_samples: PackedVector2Array = PackedVector2Array()
+var _last_peak_volume_db : Vector2 = Vector2(-80, -80)
 
 # --- Exported Properties ---
 
@@ -224,8 +225,7 @@ func get_input_volume_db() -> float:
 ## Internal helper to calculate peak volume in Decibels. Returns Vector2(Left dB, Right dB).
 func _get_peak_volume_db(frames: PackedVector2Array) -> Vector2:
 	if frames.is_empty():
-		# In Godot, -80 dB generally represents absolute silence
-		return Vector2(-80.0, -80.0)
+		return _last_peak_volume_db
 		
 	var peak_left: float = 0.0
 	var peak_right: float = 0.0
@@ -245,7 +245,9 @@ func _get_peak_volume_db(frames: PackedVector2Array) -> Vector2:
 	var db_left: float = linear_to_db(peak_left)
 	var db_right: float = linear_to_db(peak_right)
 	
-	return Vector2(db_left, db_right)
+	_last_peak_volume_db = Vector2(db_left, db_right)
+	
+	return _last_peak_volume_db
 
 ## Returns the peak volume of the current frame in Decibels as a Vector2 (X = Left, Y = Right).
 func get_peak_volume_db() -> Vector2:
